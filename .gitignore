@@ -1,0 +1,19 @@
+# Ambiente
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Dados ANBIMA reais (serão fornecidos pelo usuário)
+# Os arquivos de exemplo do gabarito são rastreados explicitamente
+data/*.txt
+data/*.csv
+data/*.xml
+data/*.json
+!data/precos_20260601.txt
+!data/feriados_2026.txt
+
+# Testes e coverage
+.pytest_cache/
+.coverage
+htmlcov/
