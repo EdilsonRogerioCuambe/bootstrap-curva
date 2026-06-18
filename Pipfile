@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 numpy = "*"
+xlrd = "*"
 
 [dev-packages]
 pytest = "*"

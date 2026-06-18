@@ -16,14 +16,12 @@ def load_holidays(filepath: str) -> list[str]:
     Lê o arquivo de feriados da ANBIMA e retorna uma lista de strings no
     formato 'YYYY-MM-DD'.
 
-    O arquivo pode estar em diferentes formatos de data (DD/MM/YYYY,
-    YYYYMMDD, YYYY-MM-DD). A função tenta detectar e converter
-    automaticamente.
+    Suporta arquivos texto (.txt, .csv) e arquivos Excel (.xls).
 
     Parameters
     ----------
     filepath : str
-        Caminho para o arquivo de feriados (TXT ou CSV).
+        Caminho para o arquivo de feriados.
 
     Returns
     -------
@@ -37,20 +35,37 @@ def load_holidays(filepath: str) -> list[str]:
     """
     holidays: list[str] = []
 
-    with open(filepath, encoding="utf-8", errors="replace") as f:
-        for line in f:
-            raw = line.strip()
-            if not raw:
-                continue
+    if filepath.lower().endswith('.xls'):
+        import xlrd
+        workbook = xlrd.open_workbook(filepath)
+        sheet = workbook.sheet_by_index(0)
+        
+        # Ignora cabeçalhos e procura por datas
+        for row_idx in range(sheet.nrows):
+            cell = sheet.cell(row_idx, 0)
+            if cell.ctype == xlrd.XL_CELL_DATE:
+                dt_tuple = xlrd.xldate_as_tuple(cell.value, workbook.datemode)
+                holidays.append(f"{dt_tuple[0]:04d}-{dt_tuple[1]:02d}-{dt_tuple[2]:02d}")
+            elif cell.ctype == xlrd.XL_CELL_TEXT:
+                # Caso a data esteja como texto
+                parsed = _parse_date_token(cell.value.strip())
+                if parsed:
+                    holidays.append(parsed.isoformat())
+    else:
+        with open(filepath, encoding="utf-8", errors="replace") as f:
+            for line in f:
+                raw = line.strip()
+                if not raw:
+                    continue
 
-            # Tenta extrair a primeira "palavra" como data (ignora campos extras)
-            token = raw.split()[0] if " " in raw else raw
-            # Remove separadores comuns que não sejam dígitos ou hífens
-            token = token.replace(";", "").replace(",", "").strip()
+                # Tenta extrair a primeira "palavra" como data (ignora campos extras)
+                token = raw.split()[0] if " " in raw else raw
+                # Remove separadores comuns que não sejam dígitos ou hífens
+                token = token.replace(";", "").replace(",", "").strip()
 
-            parsed = _parse_date_token(token)
-            if parsed is not None:
-                holidays.append(parsed.isoformat())
+                parsed = _parse_date_token(token)
+                if parsed is not None:
+                    holidays.append(parsed.isoformat())
 
     return sorted(set(holidays))
 
