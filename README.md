@@ -57,7 +57,9 @@ python -m pipenv run pytest tests/ -v
 
 ```
 bootstrap-curva/
-├── data/                   # arquivos ANBIMA (não versionados no repositório geral)
+├── data/
+│   ├── feriados_nacionais.xls # arquivo de exemplo com feriados
+│   └── precos_20260601.txt    # arquivo de exemplo com os preços (LTN, NTN-F)
 ├── src/
 │   └── bootstrap/
 │       ├── calendar.py     # leitura de feriados e contagem de dias úteis (base 252)
